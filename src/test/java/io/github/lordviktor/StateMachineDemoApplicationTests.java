@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -19,7 +20,11 @@ public class StateMachineDemoApplicationTests {
 
 	@Test
 	public void testStateMachineTransitions() {
-		stateMachine.sendEvent(Events.assemble);
+		stateMachine.sendEvent(
+			MessageBuilder.withPayload(Events.assemble)
+				.setHeader("purchaseId", 123L)
+				.build()
+		);
 		stateMachine.sendEvent(Events.deliver);
 	}
 

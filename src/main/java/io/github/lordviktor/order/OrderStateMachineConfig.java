@@ -3,6 +3,8 @@ package io.github.lordviktor.order;
 import java.util.EnumSet;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -43,6 +45,7 @@ public class OrderStateMachineConfig extends EnumStateMachineConfigurerAdapter<S
 		   .source(States.ORDERED)
 		   .target(States.ASSEMBLED)
 		   .event(Events.assemble)
+		   .action(new DoAssemblr(), new CannotAssemblr())
 		   .and()
 		   .withExternal()
 		   .source(States.ASSEMBLED)
@@ -90,6 +93,21 @@ public class OrderStateMachineConfig extends EnumStateMachineConfigurerAdapter<S
 		   .event(Events.reassemble);
 		
 		super.configure(transitions);
+	}
+	
+	private static final class DoAssemblr implements Action<States, Events>{
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			System.out.println("Doing transition " + context.getEvent().name() + " purchaseId => " + context.getMessageHeaders().get("purchaseId", Long.class));
+//			throw new RuntimeException();
+		}
+	}
+	
+	private static final class CannotAssemblr implements Action<States, Events>{
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			System.out.println("Transition error " + context.getEvent().name());
+		}
 	}
 	
 	private static final class StateMachineListener extends StateMachineListenerAdapter<States, Events> {
